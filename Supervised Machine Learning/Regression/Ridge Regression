@@ -1,0 +1,50 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Generate a simple dataset: House size (sq ft) vs Price ($)
+X = np.array([1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000])
+y = np.array([200000, 250000, 280000, 310000, 350000, 375000, 410000, 450000, 490000])
+
+# Normalize features
+X = (X - np.mean(X)) / np.std(X)
+
+# Add bias term
+X = np.c_[np.ones(X.shape[0]), X]
+
+def ridge_regression(X, y, alpha):
+    """Perform ridge regression."""
+    n_samples, n_features = X.shape
+    I = np.eye(n_features)
+    I[0, 0] = 0  # Don't regularize the bias term
+    theta = np.linalg.inv(X.T.dot(X) + alpha * I).dot(X.T).dot(y)
+    return theta
+
+def predict(X, theta):
+    """Make predictions using the learned parameters."""
+    return X.dot(theta)
+
+# Perform ridge regression
+alpha = 1.0  # Regularization parameter
+theta = ridge_regression(X, y, alpha)
+
+# Generate predictions
+X_plot = np.linspace(X[:, 1].min(), X[:, 1].max(), 100)
+X_plot = np.c_[np.ones(X_plot.shape[0]), X_plot]
+y_plot = predict(X_plot, theta)
+
+# Plot the results
+plt.figure(figsize=(10, 6))
+plt.scatter(X[:, 1], y, color='blue', label='Actual data')
+plt.plot(X_plot[:, 1], y_plot, color='red', label='Ridge Regression')
+plt.xlabel('House size (normalized)')
+plt.ylabel('Price ($)')
+plt.title('Ridge Regression: House Size vs Price')
+plt.legend()
+plt.grid(True)
+
+# Show the plot
+plt.show()
+
+# Print the learned parameters
+print(f"Intercept: {theta[0]:.2f}")
+print(f"Coefficient: {theta[1]:.2f}")
